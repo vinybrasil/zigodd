@@ -1,4 +1,4 @@
-# ZIGODD: decimal odd to probability zig converter
+# ZIGODD: decimal odd to probability Zig converter
 
 Zigodd is a program written in Zig with the purpose of converting 
 decimal odds to the implied probability. The full explanation of the code

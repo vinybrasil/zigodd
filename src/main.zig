@@ -56,7 +56,7 @@ pub fn main() anyerror!void {
 
     try myodds.calculate_probabilities();
 
-    try stdout.print("-------ZIGODD: ODDS TO PROBABILITY CONVERSOR-------\n", .{});
+    try stdout.print("-------ZIGODD: ODDS TO PROBABILITY CONVERTER-------\n", .{});
 
     try stdout.print("---decimal odds to convert: \n", .{});
 
