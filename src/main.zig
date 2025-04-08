@@ -4,13 +4,16 @@ const mini_parser = @import("mini_parser");
 const mem = std.mem;
 
 const usage =
-    \\Usage: example <opts>
+    \\Usage: zigodd <opts>
     \\
     \\Options:
-    \\  --help  -h      Display help list
-    \\  --text  -t      Print text
-    \\  --bool  -b      Print boolean
-    \\
+    \\  --help        -h      Display help list
+    \\  --param1      -1      Set parameter 1 (odd or probability)
+    \\  --param2      -2      Set parameter 2 (odd or probability)
+    \\  --param3      -3      Set parameter 3 (odd or probability)
+    \\  --probtoodd   -p      Set parameters as probabilities (Default is decimal odds)
+    \\  --vig         -k      Set the vigorish (only when --probtoodd is set)
+    \\  --debug       -d      Print results in the screen
 ;
 
 const Odds: type = struct {
@@ -99,8 +102,6 @@ pub fn main() anyerror!void {
             4 => std.debug.print("Usage: {s}\n", .{usage}),
             5 => {
                 mode = type_conversion.probtoodd;
-
-                std.debug.print("INFO: mode changed to: {any}\n", .{mode});
             },
             6 => {
                 std.debug.print("INFO: enabled verbose\n", .{});
