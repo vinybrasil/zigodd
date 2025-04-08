@@ -39,6 +39,18 @@ const Odds: type = struct {
 
         self.probabilities = probs_processed.items;
     }
+
+    pub fn calculate_odds(self: *Odds) anyerror!void {
+        const allocator = std.heap.page_allocator;
+        var odds_processed = std.ArrayList(f32).init(allocator);
+
+        for (self.probabilities) |item| {
+            const odd_processed = self.k / item;
+            try odds_processed.append(odd_processed);
+        }
+
+        self.odds = odds_processed.items;
+    }
 };
 const type_conversion = enum {
     probtoodd,
@@ -57,6 +69,8 @@ pub fn main() anyerror!void {
     var mode = type_conversion.oddtoprob;
     var vig: f32 = undefined;
     var i: usize = 0;
+
+    // following the tutorial of mini_parser
     while (argv.len > i) : (i += 1) {
         const parser = try mini_parser.init(argv[i], &.{
             .{ .name = "param1", .short_name = '1', .type = .argument }, // 4
@@ -73,27 +87,25 @@ pub fn main() anyerror!void {
             1 => {
                 const parameter_processed = try std.fmt.parseFloat(f32, parser.value);
                 try parameters.append(parameter_processed);
-            }, // 3
+            },
             2 => {
-                //std.debug.print("{s}", .{parser.value});
                 const parameter_processed = try std.fmt.parseFloat(f32, parser.value);
                 try parameters.append(parameter_processed);
             },
             3 => {
-                //std.debug.print("{s}", .{parser.value});
                 const parameter_processed = try std.fmt.parseFloat(f32, parser.value);
                 try parameters.append(parameter_processed);
             },
-            4 => std.debug.print("Usage: {s}\n", .{usage}), // 1
+            4 => std.debug.print("Usage: {s}\n", .{usage}),
             5 => {
                 mode = type_conversion.probtoodd;
 
                 std.debug.print("INFO: mode changed to: {any}\n", .{mode});
-            }, // 2
+            },
             6 => {
                 std.debug.print("INFO: enabled verbose\n", .{});
                 verbose = true;
-            }, // 3
+            },
 
             7 => {
                 vig = try std.fmt.parseFloat(f32, parser.value);
@@ -101,7 +113,7 @@ pub fn main() anyerror!void {
 
             8 => std.debug.print("argument '{s}' does not exist.\n", .{argv[i]}),
             else => {
-                // a manouver to be able to dont have to write -1 for the first argument
+                // a manouver to be able to dont have to write -1, -2 or -3 for the first argument
                 if (i == 1) {
                     const parameter_processed = try std.fmt.parseFloat(f32, mem.sliceTo(argv[i], 0));
                     try parameters.append(parameter_processed);
@@ -118,27 +130,35 @@ pub fn main() anyerror!void {
         }
     }
 
-    //const args = try std.process.argsAlloc(std.heap.page_allocator);
+    if (mode == type_conversion.probtoodd) {
+        myodds.probabilities = parameters.items;
+        myodds.k = vig;
 
-    //defer std.process.argsFree(std.heap.page_allocator, args);
+        try myodds.calculate_odds();
 
-    // const len_probabilities: u32 = @intCast(args.len);
+        if (verbose) {
+            try stdout.print("-------ZIGODD: ODDS TO PROBABILITY CONVERTER-------\n", .{});
 
-    // const odds_raw = args[1..len_probabilities];
+            try stdout.print("---probabilities to convert: \n", .{});
 
-    // var odds_processed = std.ArrayList(f32).init(allocator);
+            for (myodds.probabilities, 0..) |item, index| {
+                try stdout.print("p{d}: {d:0.2}\n", .{ index + 1, item });
+            }
+            try stdout.print("---used payout (k): \n", .{});
+            try stdout.print("k: {d:0.7}\n", .{myodds.k});
 
-    // defer odds_processed.deinit();
+            try stdout.print("---calculated odds: \n", .{});
+            for (myodds.odds, 0..) |item, index| {
+                try stdout.print("o{d}: {d:0.7}\n", .{ index + 1, item });
+            }
 
-    // for (odds_raw) |item| {
-    //     const odd_processed = try std.fmt.parseFloat(f32, item);
-    //     try odds_processed.append(odd_processed);
-    // }
-
-    //myodds.odds = odds_processed.items;
-    myodds.odds = parameters.items;
+            try stdout.print("-----------------------------------------------------\n", .{});
+        }
+    }
 
     if (mode == type_conversion.oddtoprob) {
+        myodds.odds = parameters.items;
+
         try myodds.calculate_k();
 
         try myodds.calculate_probabilities();
