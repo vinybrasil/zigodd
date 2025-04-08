@@ -41,6 +41,9 @@ pub fn build(b: *std.Build) void {
     // step when running `zig build`).
     b.installArtifact(exe);
 
+    const mini_parser = b.dependency("mini_parser", .{});
+    exe.root_module.addImport("mini_parser", mini_parser.module("mini_parser"));
+
     // This *creates* a Run step in the build graph, to be executed when another
     // step is evaluated that depends on it. The next line below will establish
     // such a dependency.
